@@ -1,46 +1,49 @@
 const express = require('express')
 const app = express();
 
+const {getAll, insertOne, updateOne, deleteOne}= require('./helpers/mongo.js')
+
 app.use(express.json());
- 
-app.get('/user', function (req, res) {
+
+app.get('/notes', async(req,res)=>{
+  res.send(
+    await getAll("notes")
+  )
+})
+
+app.post('/notes', async(req, res)=>{
+  let note= req.body;
+  //TODO: agregar validaciones para la nota
+
+  let result= await insertOne("notes", note);
   res.send({
-    "message": "Hola mundo",
-    "result": "ERROR"
+    message: "OK",
+    result: result
   })
 })
 
-app.post('/user', function(req,res){
-  let headers= req.headers;
-  let body= req.body;
+app.put('/notes/:noteId', async(req,res)=>{
+  let noteId= req.params.noteId;
 
-  let query= req.query;
+  let noteUpdated= req.body;
 
-  // console.log(headers);
-  console.log(body);
-  console.log(query)
+  let updateResult= await updateOne("notes", noteId, noteUpdated);
   res.send({
-    "message": "Hola desde post",
-    "result": "ERROR"
+    message: "OK",
+    result: updateResult
   })
 })
 
-app.put('/user', function(req,res){
+app.delete('/notes/:noteId', async(req,res)=>{
+  let noteId= req.params.noteId;
+  let deleteResult= await deleteOne("notes", noteId)
   res.send({
-    "message": "Hola desde put",
-    "result": "ERROR"
+    message: "OK",
+    result: deleteResult
   })
 })
 
-app.delete('/user/:userId/foto/:fotoId', function(req,res){
-  let params= req.params;
-  console.log(params)
-  res.send({
-    "message": "Hola desde delete",
-    "result": "ERROR"
-  })
-})
-
-app.listen(3000, ()=>{
-  console.log("Server listening in port 3000")
+PORT= process.env.PORT || 3000;
+app.listen(PORT, ()=>{
+  console.log("Server listening in port " + PORT)
 })
