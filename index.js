@@ -1,9 +1,40 @@
 const express = require('express')
 const app = express();
+var jwt = require('jsonwebtoken');
+
+//TODO: en una app real no quiero tener harcodeado mi secreto por que cuando lo pushee a github va a estar visible para todos los que tengan acceso al repo
+//TODO: deberiamos sacarlo de un archivo de configuracion o de una variable del sistem
+//o de docket secrets;
+let secret= 'miSecreto';
 
 const {getAll, insertOne, updateOne, deleteOne}= require('./helpers/mongo.js')
 
 app.use(express.json());
+
+app.get("/jwt", (req,res) => {
+  let user={
+    "username": "pepe@gmail.com",
+    "userType": "admin",
+  }
+
+  var token = jwt.sign(user, secret );
+
+  //A: supongamos que este token creado lo recibimos
+  let tokenCreado= "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InBlcGVAZ21haWwuY29tIiwidXNlclR5cGUiOiJzdXBlckFkbWluIiwiaWF0IjoxNjM3MTgyNTY1fQ.Cu4uu6nXiKITY8zWFL_x9lxeQP8qOSeDiCeEtl-_ruM";
+
+  try {
+    var decoded = jwt.verify(tokenCreado, secret);
+    console.log("JWT verificado")
+    console.log(decoded) // bar
+  } catch (error) {
+    console.log("JWT error de verificacion");
+  }
+
+  res.send({
+    "message": "OK",
+    "token": token
+  })
+})
 
 app.get('/notes', async(req,res)=>{
   res.send(
